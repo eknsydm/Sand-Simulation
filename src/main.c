@@ -9,11 +9,31 @@
 #include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_render.h>
 
+#include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_shape.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+// TODO: Pop the non moving sands
+// TODO: what if sand move again
+
+typedef struct InputState {
+        int right;
+        int left;
+        int up;
+        int down;
+        int drop;
+
+} InputState;
+
+typedef struct Cursor {
+        int x;
+        int y;
+        int selectedObject;
+        int time;
+        Color color;
+} Cursor;
 
 typedef struct Sand {
         int x;
@@ -22,7 +42,6 @@ typedef struct Sand {
 } Sand;
 
 App app;
-
 void initSand(int ***map, Sand **head_ref, int x, int y) {
 
     if ((*map)[x][y] != EMPTY)
@@ -45,6 +64,7 @@ void initSand(int ***map, Sand **head_ref, int x, int y) {
     }
     last->next = newSand;
 }
+
 int is_empty(int ***map, int x, int y) {
     if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
         if ((*map)[x][y] == EMPTY) {
@@ -53,6 +73,7 @@ int is_empty(int ***map, int x, int y) {
     }
     return 0;
 }
+
 void move_sands(int ***map, Sand **head_ref) {
     int down, downl, downr;
     Sand *sand = *head_ref;
@@ -101,22 +122,37 @@ int **initMap(int width, int height) {
     return new_map;
 }
 
+void process_input(InputState *input) {
+
+}
+
 int main(void) {
+
     app = (App){};
     float last_frame_time = 0;
     int **map = initMap(MAP_WIDTH, MAP_HEIGHT);
     Sand *sands_head = NULL;
-
-    initSand(&map, &sands_head, MAP_WIDTH / 2, 0);
-    initSand(&map, &sands_head, MAP_WIDTH / 2 + 1, 4);
-    initSand(&map, &sands_head, MAP_WIDTH / 2 + 2, 3);
+    InputState input = {};
+    Cursor cursor = {0, MAP_WIDTH / 2, 0, 0, 0};
 
     if (map == NULL) {
         printf("ERROR: map is not allocated");
     }
+
     int quit = 0;
     initSDL();
     while (!quit) {
+
+        // Input
+        int32_t key_count;
+        const uint8_t *key_state = SDL_GetKeyboardState(&key_count);
+
+        input.up =key_state[SDL_SCANCODE_W];
+        input.down =key_state[SDL_SCANCODE_S];
+        input.left =key_state[SDL_SCANCODE_A];
+        input.right =key_state[SDL_SCANCODE_D];
+        input.drop =key_state[SDL_SCANCODE_SPACE];
+        
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -124,9 +160,12 @@ int main(void) {
             if (e.key.keysym.sym == SDLK_1)
                 initSand(&map, &sands_head, MAP_WIDTH / 2, 0);
         }
-        int randomx = rand() % (MAP_WIDTH - 1);
+
+        int randomx = rand() % (MAP_WIDTH / 3) + (MAP_WIDTH / 3);
         initSand(&map, &sands_head, randomx, 0);
+
         move_sands(&map, &sands_head);
+
         int time_to_wait =
             (int)FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
 

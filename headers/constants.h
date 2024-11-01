@@ -10,7 +10,6 @@
 
 #define ARRAY_COUNT (x)(sizeof(x) / sizeof(x[0]))
 // TODO: FIX Naming convertion
-
 enum EMapState {
     EMPTY = 0,
     SAND = 1,

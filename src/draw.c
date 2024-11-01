@@ -49,3 +49,6 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
         }
     }
 }
+void draw_cursor(SDL_Renderer *renderer, int x, int y, int width, int height){
+    
+}
