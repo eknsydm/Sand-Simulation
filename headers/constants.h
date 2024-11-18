@@ -1,4 +1,4 @@
-#define GRID_SIZE 4
+#define GRID_SIZE 8
 #define MAP_WIDTH 100
 #define MAP_HEIGHT 100
 
@@ -14,4 +14,14 @@ enum EMapState {
     EMPTY = 0,
     SAND = 1,
     WATER = 2,
+};
+enum EGravityDirection {
+    UP,
+    RIGHT_UP,
+    RIGHT,
+    RIGHT_DOWN,
+    DOWN,
+    LEFT_DOWN,
+    LEFT,
+    LEFT_UP,
 };

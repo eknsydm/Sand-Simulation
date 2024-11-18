@@ -18,16 +18,7 @@
 // TODO: Pop the non moving sands
 // TODO: what if sand move again
 
-enum DIRECTION{
-    UP,
-    RIGHT_UP,
-    RIGHT,
-    RIGHT_DOWN,
-    DOWN,
-    LEFT_DOWN,
-    LEFT,
-    LEFT_UP,
-};
+
 
 typedef struct InputState {
         int right;
@@ -88,8 +79,7 @@ int is_empty(int ***map, int x, int y) {
 void move_sands(int ***map, Sand **head_ref, const int degree) {
     int down, downl, downr;
     Sand *sand = *head_ref;
-    //TODO:down_x,y,downl_x,y,downr_x,y
-
+    //TODO:down_x,y,downl_x,y,downr 
     while (sand != NULL) {
 
         if (degree >= 45 && degree < 90) {
