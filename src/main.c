@@ -11,6 +11,7 @@
 
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_shape.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,14 +19,18 @@
 // TODO: Pop the non moving sands
 // TODO: what if sand move again
 
-
-
 typedef struct InputState {
         int right;
         int left;
         int up;
         int down;
         int drop;
+
+        int dright;
+        int dleft;
+        int dup;
+        int ddown;
+        int ddrop;
 
 } InputState;
 
@@ -44,6 +49,7 @@ typedef struct Sand {
 } Sand;
 
 App app;
+
 void initSand(int ***map, Sand **head_ref, int x, int y) {
 
     if ((*map)[x][y] != EMPTY)
@@ -79,53 +85,53 @@ int is_empty(int ***map, int x, int y) {
 void move_sands(int ***map, Sand **head_ref, const int degree) {
     int down, downl, downr;
     Sand *sand = *head_ref;
-    //TODO:down_x,y,downl_x,y,downr 
+
+    // TODO:down_x,y,downl_x,y,downr
+
     while (sand != NULL) {
+        int down_x = 0;
+        int down_y = 1;
 
-        if (degree >= 45 && degree < 90) {
-            downl = is_empty(map, sand->x, sand->y + 1);
-            downr = is_empty(map, sand->x + 1, sand->y);
-            down = is_empty(map, sand->x + 1, sand->y + 1);
-            if (down) {
-                (*map)[sand->x][sand->y] = EMPTY;
-                sand->y += 1;
-                sand->x += 1;
-                (*map)[sand->x][sand->y] = SAND;
+        double radian = degree * (M_PI / 180);
 
-            } else if (downr) {
-                (*map)[sand->x][sand->y] = EMPTY;
-                sand->x += 1;
-                (*map)[sand->x][sand->y] = SAND;
-            } else if (downl) {
-                (*map)[sand->x][sand->y] = EMPTY;
-                sand->y += 1;
-                (*map)[sand->x][sand->y] = SAND;
-            }
-        } else {
-            down = is_empty(map, sand->x, sand->y + 1);
-            downl = is_empty(map, sand->x - 1, sand->y + 1);
-            downr = is_empty(map, sand->x + 1, sand->y + 1);
+        float down_xr = down_x * cos(radian) - down_y * sin(radian);
+        float down_yr = down_x * sin(radian) + down_y * cos(radian);
+        float downl_xr = (down_x - 1) * cos(radian) - down_y * sin(radian);
+        float downl_yr = (down_x - 1) * sin(radian) + down_y * cos(radian);
+        float downr_xr = (down_x + 1) * cos(radian) - down_y * sin(radian);
+        float downr_yr = (down_x + 1) * sin(radian) + down_y * cos(radian);
 
-            // down
-            if (down) {
-                (*map)[sand->x][sand->y] = EMPTY;
-                sand->y += 1;
-                (*map)[sand->x][sand->y] = SAND;
-            }
-            // down left
-            else if (downl) {
-                (*map)[sand->x][sand->y] = EMPTY;
-                sand->y += 1;
-                sand->x -= 1;
-                (*map)[sand->x][sand->y] = SAND;
-            }
-            // down right
-            else if (downr) {
-                (*map)[sand->x][sand->y] = EMPTY;
-                sand->y += 1;
-                sand->x += 1;
-                (*map)[sand->x][sand->y] = SAND;
-            }
+        down_xr = round(down_xr);
+        down_yr = round(down_yr);
+        downl_xr = round(downl_xr);
+        downl_yr = round(downl_yr);
+        downr_xr = round(downr_xr);
+        downr_yr = round(downr_yr);
+
+        down = is_empty(map, sand->x + down_xr, sand->y + down_yr);
+        downl = is_empty(map, sand->x + downl_xr, sand->y + downl_yr);
+        downr = is_empty(map, sand->x + downr_xr, sand->y + downr_yr);
+
+        // down
+        if (down) {
+            (*map)[sand->x][sand->y] = EMPTY;
+            sand->x += down_xr;
+            sand->y += down_yr;
+            (*map)[sand->x][sand->y] = SAND;
+        }
+        // down left
+        else if (downl) {
+            (*map)[sand->x][sand->y] = EMPTY;
+            sand->x += downl_xr;
+            sand->y += downl_yr;
+            (*map)[sand->x][sand->y] = SAND;
+        }
+        // down right
+        else if (downr) {
+            (*map)[sand->x][sand->y] = EMPTY;
+            sand->x += downr_xr;
+            sand->y += downr_yr;
+            (*map)[sand->x][sand->y] = SAND;
         }
         sand = sand->next;
     }
@@ -163,12 +169,14 @@ int main(void) {
 
     int quit = 0;
     initSDL();
-    int degree = 45;
+    int degree;
     while (!quit) {
 
         // Input
         int32_t key_count;
         const uint8_t *key_state = SDL_GetKeyboardState(&key_count);
+
+        InputState prev_input = input;
 
         input.up = key_state[SDL_SCANCODE_W];
         input.down = key_state[SDL_SCANCODE_S];
@@ -176,6 +184,18 @@ int main(void) {
         input.right = key_state[SDL_SCANCODE_D];
         input.drop = key_state[SDL_SCANCODE_SPACE];
 
+        input.dup = input.up - prev_input.up;
+        input.ddown = input.down - prev_input.down;
+        input.dleft = input.left - prev_input.left;
+        input.dright = input.right - prev_input.right;
+        input.ddrop = input.drop - prev_input.drop;
+
+        if (input.dleft > 0)
+            degree += 45;
+        if (input.dright > 0)
+            degree -= 45;
+        if (input.drop > 0)
+            initSand(&map, &sands_head, MAP_WIDTH / 2, 0);
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -183,15 +203,14 @@ int main(void) {
             if (e.key.keysym.sym == SDLK_1)
                 initSand(&map, &sands_head, MAP_WIDTH / 2, 0);
             if (e.key.keysym.sym == SDLK_2)
-                degree = 0;
+                degree -= 45;
             if (e.key.keysym.sym == SDLK_3)
-                degree = 45;
-
+                degree += 45;
         }
 
         int randomx = rand() % (MAP_WIDTH / 4);
         initSand(&map, &sands_head, randomx, 0);
-        //initSand(&map, &sands_head, 0, 0);
+        // initSand(&map, &sands_head, 0, 0);
         move_sands(&map, &sands_head, degree);
 
         int time_to_wait =
@@ -207,7 +226,7 @@ int main(void) {
         SDL_RenderClear(app.renderer);
         draw_map(app.renderer, 10, 10, map, degree, MAP_WIDTH, MAP_HEIGHT);
         SDL_RenderPresent(app.renderer);
-        // degree = degree % 360 + 1;
+        degree = degree % 360 + 1;
     }
     return 0;
 }
