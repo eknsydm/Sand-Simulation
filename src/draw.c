@@ -2,6 +2,7 @@
 #include "../headers/constants.h"
 #include <SDL2/SDL.h>
 #include <math.h>
+#include <stdio.h>
 
 void draw_rect(SDL_Renderer *renderer, float x, float y, int width, int height,
                Color color) {
@@ -30,22 +31,24 @@ void fill_rect(SDL_Renderer *renderer, float x, float y, int width, int height,
 }
 
 void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
-              int **map,double degree, int width, int height) {
+              int **map, double degree, int width, int height) {
     int x, y;
     float xr, yr;
     float px, py;
 
     Color _test = {20, 20, 20, 255};
     Color _yellow = {255, 160, 40, 255};
-    double radian = degree * (M_PI / 180);  
+    double radian = degree * (M_PI / 180);
+    int sand_count = 0;
     for (x = 0; x < width; ++x) {
         for (y = 0; y < height; ++y) {
 
             px = x - width / 2.0;
             py = y - height / 2.0;
-    
-            xr = px * cosf(radian) - py * sinf(radian);
-            yr = px * sinf(radian) + py * cosf(radian);
+
+            xr = px * cos(radian) + py * sin(radian);
+            // yr = px * sin(radian) + py * cos(radian);
+            yr = -1 * px * sin(radian) + py * cos(radian);
 
             xr += width / 2.0;
             yr += width / 2.0;
@@ -58,8 +61,10 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
                 fill_rect(renderer, (screen_offset_x + xr) * GRID_SIZE,
                           (screen_offset_y + yr) * GRID_SIZE, GRID_SIZE,
                           GRID_SIZE, _yellow);
+                sand_count++;
             }
         }
     }
+    printf("draw_sand: %d ", sand_count);
 }
 void draw_cursor(SDL_Renderer *renderer, int x, int y, int width, int height) {}
