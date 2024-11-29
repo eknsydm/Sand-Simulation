@@ -36,8 +36,8 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
     float xr, yr;
     float px, py;
 
-    Color _test = {20, 20, 20, 255};
-    Color _yellow = {255, 160, 40, 255};
+    Color _test = {50, 50, 50, 255};
+    Color _yellow = {194, 178, 128, 255};
     double radian = degree * (M_PI / 180);
     int sand_count = 0;
     for (x = 0; x < width; ++x) {
@@ -47,7 +47,6 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
             py = y - height / 2.0;
 
             xr = px * cos(radian) + py * sin(radian);
-            // yr = px * sin(radian) + py * cos(radian);
             yr = -1 * px * sin(radian) + py * cos(radian);
 
             xr += width / 2.0;
@@ -65,6 +64,5 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
             }
         }
     }
-    printf("draw_sand: %d ", sand_count);
 }
 void draw_cursor(SDL_Renderer *renderer, int x, int y, int width, int height) {}

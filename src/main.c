@@ -46,6 +46,7 @@ typedef struct Sand {
         int x;
         int y;
         struct Sand *next;
+        Color color;
 } Sand;
 
 App app;
@@ -60,7 +61,8 @@ void initSand(int ***map, Sand **head_ref, int x, int y) {
     newSand->x = x;
     newSand->y = y;
     newSand->next = NULL;
-
+    newSand->color = (Color){194 + rand() % 10 - 5, 178 + rand() % 10 - 5,
+                             128 + rand() % 10 - 5,255};
     (*map)[x][y] = SAND;
 
     if (*head_ref == NULL) {
@@ -100,11 +102,6 @@ void move_sands(int ***map, Sand **head_ref, const int degree) {
     Sand *sand = *head_ref;
     int **new_map = initMap(MAP_WIDTH, MAP_HEIGHT);
     int sand_count = 0;
-    for (int x = 0; x < MAP_WIDTH; ++x) {
-        for (int y = 0; y < MAP_HEIGHT; ++y) {
-            new_map[x][y] = (*map)[x][y];
-        }
-    }
 
     while (sand != NULL) {
         sand_count++;
@@ -132,33 +129,23 @@ void move_sands(int ***map, Sand **head_ref, const int degree) {
         downr = is_empty(map, sand->x + downr_xr, sand->y + downr_yr);
 
         if (down) {
-            new_map[sand->x][sand->y] = EMPTY;
+            (*map)[sand->x][sand->y] = EMPTY;
             sand->x += down_xr;
             sand->y += down_yr;
-            new_map[sand->x][sand->y] = SAND;
-        }
-        // down left
-        else if (downl) {
-            new_map[sand->x][sand->y] = EMPTY;
+            (*map)[sand->x][sand->y] = SAND;
+        } else if (downl) {
+            (*map)[sand->x][sand->y] = EMPTY;
             sand->x += downl_xr;
             sand->y += downl_yr;
-            new_map[sand->x][sand->y] = SAND;
-        }
-        // down right
-        else if (downr) {
-            new_map[sand->x][sand->y] = EMPTY;
+            (*map)[sand->x][sand->y] = SAND;
+        } else if (downr) {
+            (*map)[sand->x][sand->y] = EMPTY;
             sand->x += downr_xr;
             sand->y += downr_yr;
-            new_map[sand->x][sand->y] = SAND;
+            (*map)[sand->x][sand->y] = SAND;
         }
         sand = sand->next;
     }
-    for (int x = 0; x < MAP_WIDTH; ++x) {
-        for (int y = 0; y < MAP_HEIGHT; ++y) {
-            (*map)[x][y] = new_map[x][y];
-        }
-    }
-    printf("sand_count: %d\n", sand_count);
 }
 
 void process_input(InputState *input) {}
@@ -232,7 +219,7 @@ int main(void) {
         last_frame_time = SDL_GetTicks();
         SDL_SetRenderDrawColor(app.renderer, 100, 100, 100, 255);
         SDL_RenderClear(app.renderer);
-        draw_map(app.renderer, 10, 10, map, degree, MAP_WIDTH, MAP_HEIGHT);
+        draw_map(app.renderer, 20, 20, map, degree, MAP_WIDTH, MAP_HEIGHT);
         SDL_RenderPresent(app.renderer);
         // degree = degree % 360 + 1;
     }
