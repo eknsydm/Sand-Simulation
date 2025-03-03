@@ -5,10 +5,10 @@ CFLAGS = -Wall -lSDL2 -lm
 SRCDIR = ./src/
 SOURCES = $(SRCDIR)*.c
 
-all: sands run clean
+all: build run clean
 
-sands:
-	$(CC) $(SOURCES) $(CFLAGS) -o $@
+build:
+	$(CC) $(SOURCES) $(CFLAGS) -o sands
 
 run:
 	SDL_VIDEODRIVER=wayland ./sands

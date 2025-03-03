@@ -3,21 +3,12 @@
 #include "../headers/draw.h"
 #include "../headers/init.h"
 
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keyboard.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mouse.h>
-#include <SDL2/SDL_render.h>
-
-#include <SDL2/SDL_scancode.h>
-#include <SDL2/SDL_shape.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
 // TODO: Pop the non moving sands
-// TODO: what if sand move again
 
 typedef struct InputState {
         int right;
@@ -62,7 +53,7 @@ void initSand(int ***map, Sand **head_ref, int x, int y) {
     newSand->y = y;
     newSand->next = NULL;
     newSand->color = (Color){194 + rand() % 10 - 5, 178 + rand() % 10 - 5,
-                             128 + rand() % 10 - 5,255};
+                             128 + rand() % 10 - 5, 255};
     (*map)[x][y] = SAND;
 
     if (*head_ref == NULL) {
@@ -75,20 +66,20 @@ void initSand(int ***map, Sand **head_ref, int x, int y) {
     last->next = newSand;
 }
 int **initMap(int width, int height) {
-    int **new_map = (int **)malloc(width * sizeof(int *));
+    int **newMap = (int **)malloc(width * sizeof(int *));
 
     for (int i = 0; i < width; ++i) {
-        new_map[i] = (int *)malloc(height * sizeof(int));
+        newMap[i] = (int *)malloc(height * sizeof(int));
     }
 
     for (int x = 0; x < width; ++x) {
         for (int y = 0; y < height; ++y) {
-            *(*(new_map + x) + y) = EMPTY;
+            *(*(newMap + x) + y) = EMPTY;
         }
     }
-    return new_map;
+    return newMap;
 }
-int is_empty(int ***map, int x, int y) {
+int isEmpty(int ***map, int x, int y) {
     if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
         if ((*map)[x][y] == EMPTY) {
             return 1;
@@ -97,14 +88,14 @@ int is_empty(int ***map, int x, int y) {
     return 0;
 }
 
-void move_sands(int ***map, Sand **head_ref, const int degree) {
+void moveSands(int ***map, Sand **head_ref, const int degree) {
     int down, downl, downr;
     Sand *sand = *head_ref;
-    int **new_map = initMap(MAP_WIDTH, MAP_HEIGHT);
-    int sand_count = 0;
+    int **newMap = initMap(MAP_WIDTH, MAP_HEIGHT);
+    int sandCount = 0;
 
     while (sand != NULL) {
-        sand_count++;
+        sandCount++;
         int down_x = 0;
         int down_y = 1;
 
@@ -124,9 +115,9 @@ void move_sands(int ***map, Sand **head_ref, const int degree) {
         downr_xr = round(downr_xr);
         downr_yr = round(downr_yr);
 
-        down = is_empty(map, sand->x + down_xr, sand->y + down_yr);
-        downl = is_empty(map, sand->x + downl_xr, sand->y + downl_yr);
-        downr = is_empty(map, sand->x + downr_xr, sand->y + downr_yr);
+        down = isEmpty(map, sand->x + down_xr, sand->y + down_yr);
+        downl = isEmpty(map, sand->x + downl_xr, sand->y + downl_yr);
+        downr = isEmpty(map, sand->x + downr_xr, sand->y + downr_yr);
 
         if (down) {
             (*map)[sand->x][sand->y] = EMPTY;
@@ -148,12 +139,10 @@ void move_sands(int ***map, Sand **head_ref, const int degree) {
     }
 }
 
-void process_input(InputState *input) {}
-
 int main(void) {
 
     app = (App){};
-    float last_frame_time = 0;
+    float lastFrameTime = 0;
     int **map = initMap(MAP_WIDTH, MAP_HEIGHT);
     Sand *sands_head = NULL;
     InputState input = {};
@@ -165,26 +154,26 @@ int main(void) {
 
     int quit = 0;
     initSDL();
-    int degree;
+    int degree = 0;
+
     while (!quit) {
 
-        // Input
-        int32_t key_count;
-        const uint8_t *key_state = SDL_GetKeyboardState(&key_count);
+        int32_t keyCount;
+        const uint8_t *keyState = SDL_GetKeyboardState(&keyCount);
 
-        InputState prev_input = input;
+        InputState prevInput = input;
 
-        input.up = key_state[SDL_SCANCODE_W];
-        input.down = key_state[SDL_SCANCODE_S];
-        input.left = key_state[SDL_SCANCODE_A];
-        input.right = key_state[SDL_SCANCODE_D];
-        input.drop = key_state[SDL_SCANCODE_SPACE];
+        input.up = keyState[SDL_SCANCODE_W];
+        input.down = keyState[SDL_SCANCODE_S];
+        input.left = keyState[SDL_SCANCODE_A];
+        input.right = keyState[SDL_SCANCODE_D];
+        input.drop = keyState[SDL_SCANCODE_SPACE];
 
-        input.dup = input.up - prev_input.up;
-        input.ddown = input.down - prev_input.down;
-        input.dleft = input.left - prev_input.left;
-        input.dright = input.right - prev_input.right;
-        input.ddrop = input.drop - prev_input.drop;
+        input.dup = input.up - prevInput.up;
+        input.ddown = input.down - prevInput.down;
+        input.dleft = input.left - prevInput.left;
+        input.dright = input.right - prevInput.right;
+        input.ddrop = input.drop - prevInput.drop;
 
         if (input.dleft > 0)
             degree += 45;
@@ -192,6 +181,7 @@ int main(void) {
             degree -= 45;
         if (input.drop > 0)
             initSand(&map, &sands_head, MAP_WIDTH / 2, 0);
+
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.key.keysym.sym == SDLK_ESCAPE)
@@ -206,22 +196,21 @@ int main(void) {
 
         int randomx = rand() % (MAP_WIDTH / 4);
         initSand(&map, &sands_head, randomx, 0);
-        // initSand(&map, &sands_head, 0, 0);
-        move_sands(&map, &sands_head, degree);
+        moveSands(&map, &sands_head, degree);
 
         int time_to_wait =
-            (int)FRAME_TARGET_TIME - (SDL_GetTicks() - last_frame_time);
+            (int)FRAME_TARGET_TIME - (SDL_GetTicks() - lastFrameTime);
 
         if (time_to_wait > 0 && time_to_wait < FRAME_TARGET_TIME) {
             SDL_Delay(time_to_wait);
         }
-        float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
-        last_frame_time = SDL_GetTicks();
+
+        float delta_time = (SDL_GetTicks() - lastFrameTime) / 1000.0f;
+        lastFrameTime = SDL_GetTicks();
         SDL_SetRenderDrawColor(app.renderer, 100, 100, 100, 255);
         SDL_RenderClear(app.renderer);
-        draw_map(app.renderer, 20, 20, map, degree, MAP_WIDTH, MAP_HEIGHT);
+        drawMap(app.renderer, 20, 20, map, degree, MAP_WIDTH, MAP_HEIGHT);
         SDL_RenderPresent(app.renderer);
-        // degree = degree % 360 + 1;
     }
     return 0;
 }

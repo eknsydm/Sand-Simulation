@@ -9,7 +9,7 @@
 #define FRAME_TARGET_TIME (1000 / FPS)
 
 #define ARRAY_COUNT (x)(sizeof(x) / sizeof(x[0]))
-// TODO: FIX Naming convertion
+
 enum EMapState {
     EMPTY = 0,
     SAND = 1,

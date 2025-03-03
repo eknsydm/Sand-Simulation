@@ -2,9 +2,8 @@
 #include "../headers/constants.h"
 #include <SDL2/SDL.h>
 #include <math.h>
-#include <stdio.h>
 
-void draw_rect(SDL_Renderer *renderer, float x, float y, int width, int height,
+void drawRect(SDL_Renderer *renderer, float x, float y, int width, int height,
                Color color) {
     SDL_Rect rect = {};
 
@@ -17,7 +16,7 @@ void draw_rect(SDL_Renderer *renderer, float x, float y, int width, int height,
     SDL_RenderDrawRect(renderer, &rect);
 }
 
-void fill_rect(SDL_Renderer *renderer, float x, float y, int width, int height,
+void fillRect(SDL_Renderer *renderer, float x, float y, int width, int height,
                Color color) {
     SDL_Rect rect = {};
 
@@ -30,7 +29,7 @@ void fill_rect(SDL_Renderer *renderer, float x, float y, int width, int height,
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
+void drawMap(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
               int **map, double degree, int width, int height) {
     int x, y;
     float xr, yr;
@@ -53,11 +52,11 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
             yr += width / 2.0;
 
             if (map[x][y] == EMPTY) {
-                draw_rect(renderer, (screen_offset_x + xr) * GRID_SIZE,
+                drawRect(renderer, (screen_offset_x + xr) * GRID_SIZE,
                           (screen_offset_y + yr) * GRID_SIZE, GRID_SIZE,
                           GRID_SIZE, _test);
             } else if (map[x][y] == SAND) {
-                fill_rect(renderer, (screen_offset_x + xr) * GRID_SIZE,
+                fillRect(renderer, (screen_offset_x + xr) * GRID_SIZE,
                           (screen_offset_y + yr) * GRID_SIZE, GRID_SIZE,
                           GRID_SIZE, _yellow);
                 sand_count++;
@@ -65,4 +64,3 @@ void draw_map(SDL_Renderer *renderer, int screen_offset_x, int screen_offset_y,
         }
     }
 }
-void draw_cursor(SDL_Renderer *renderer, int x, int y, int width, int height) {}
