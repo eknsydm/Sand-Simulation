@@ -188,10 +188,6 @@ int main(void) {
                 quit = 1;
             if (e.key.keysym.sym == SDLK_1)
                 initSand(&map, &sands_head, MAP_WIDTH / 2, 0);
-            if (e.key.keysym.sym == SDLK_2)
-                degree -= 45;
-            if (e.key.keysym.sym == SDLK_3)
-                degree += 45;
         }
 
         int randomx = rand() % (MAP_WIDTH / 4);
