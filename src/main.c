@@ -89,11 +89,33 @@ void move_sands(int ***map, Sand **head_ref, const int degree) {
     // TODO:down_x,y,downl_x,y,downr
 
     while (sand != NULL) {
+        /*
+        if (degree >= 45 && degree < 90) {
+            downl = is_empty(map, sand->x, sand->y + 1);
+            downr = is_empty(map, sand->x + 1, sand->y);
+            down = is_empty(map, sand->x + 1, sand->y + 1);
+            if (down) {
+                (*map)[sand->x][sand->y] = EMPTY;
+                sand->y += 1;
+                sand->x += 1;
+                (*map)[sand->x][sand->y] = SAND;
+
+            } else if (downr) {
+                (*map)[sand->x][sand->y] = EMPTY;
+                sand->x += 1;
+                (*map)[sand->x][sand->y] = SAND;
+            } else if (downl) {
+                (*map)[sand->x][sand->y] = EMPTY;
+                sand->y += 1;
+                (*map)[sand->x][sand->y] = SAND;
+            }
+        } else {)
+
+        */
         int down_x = 0;
         int down_y = 1;
 
         double radian = degree * (M_PI / 180);
-
         float down_xr = down_x * cos(radian) - down_y * sin(radian);
         float down_yr = down_x * sin(radian) + down_y * cos(radian);
         float downl_xr = (down_x - 1) * cos(radian) - down_y * sin(radian);
@@ -112,6 +134,9 @@ void move_sands(int ***map, Sand **head_ref, const int degree) {
         downl = is_empty(map, sand->x + downl_xr, sand->y + downl_yr);
         downr = is_empty(map, sand->x + downr_xr, sand->y + downr_yr);
 
+        printf("down:  %.f|%.f\n", down_xr, down_yr);
+        printf("downl: %.f|%.f\n", downl_xr, downl_yr);
+        printf("downr: %.f|%.f\n", downr_xr, downr_yr);
         // down
         if (down) {
             (*map)[sand->x][sand->y] = EMPTY;
@@ -226,7 +251,7 @@ int main(void) {
         SDL_RenderClear(app.renderer);
         draw_map(app.renderer, 10, 10, map, degree, MAP_WIDTH, MAP_HEIGHT);
         SDL_RenderPresent(app.renderer);
-        degree = degree % 360 + 1;
+        //degree = degree % 360 + 1;
     }
     return 0;
 }
