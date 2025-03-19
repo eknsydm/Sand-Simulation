@@ -1,7 +1,7 @@
 # Sand Simulation
 
 A 2D simulation of falling sand using SDL2, written in C. This project allows you to interact with a grid of sand particles, where you can drop sand and watch it move according to gravity in different directions.
-
+![](recording_2025-03-19_14.40.43(1).gif)
 ## Features
 
 - **Sand Simulation**: Watch sand fall and move in different directions, based on the physics of gravity and user input.
